@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>2nd side of the Triangle</title>
+
+<style>
+    *{
+        box-sizing:border-box;
+        font-family:Consolas, monospace;
+    }
+
+    body{
+        margin:0;
+        min-height:100vh;
+        background:
+            radial-gradient(circle at top, #111 0%, #050505 45%, #000 100%);
+        color:#d0d0d0;
+        overflow-x:hidden;
+    }
+
+    body::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        pointer-events:none;
+        opacity:0.06;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    .container{
+        width:min(900px, 92%);
+        margin:auto;
+        padding:40px 0;
+    }
+
+    h1{
+        text-align:center;
+        font-size:3rem;
+        letter-spacing:4px;
+        color:#fff;
+        text-shadow:0 0 12px #444;
+        margin-bottom:10px;
+    }
+
+    .subtitle{
+        text-align:center;
+        opacity:0.7;
+        margin-bottom:50px;
+    }
+
+    .quiz{
+        background:rgba(10,10,10,0.92);
+        border:1px solid #1f1f1f;
+        border-radius:18px;
+        padding:22px;
+        margin-bottom:25px;
+        box-shadow:
+            0 0 20px rgba(255,255,255,0.03),
+            inset 0 0 25px rgba(255,255,255,0.015);
+        transition:0.3s;
+    }
+
+    .quiz.correct{
+        border-color:#2c6d2c;
+        box-shadow:
+            0 0 25px rgba(0,255,0,0.1),
+            inset 0 0 25px rgba(0,255,0,0.03);
+    }
+
+    .question-row{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:15px;
+        margin-bottom:18px;
+    }
+
+    .question{
+        font-size:1.15rem;
+        line-height:1.6;
+    }
+
+    .speak{
+        background:#151515;
+        border:1px solid #333;
+        color:white;
+        width:50px;
+        height:50px;
+        border-radius:14px;
+        cursor:pointer;
+        font-size:1.3rem;
+        transition:0.25s;
+    }
+
+    .speak:hover{
+        transform:scale(1.08);
+        background:#222;
+    }
+
+    .answer-row{
+        display:flex;
+        gap:10px;
+    }
+
+    input{
+        flex:1;
+        padding:14px;
+        background:#0c0c0c;
+        border:1px solid #2c2c2c;
+        color:white;
+        border-radius:12px;
+        outline:none;
+        font-size:1rem;
+    }
+
+    input:focus{
+        border-color:#666;
+        box-shadow:0 0 10px rgba(255,255,255,0.08);
+    }
+
+    .submit{
+        padding:14px 20px;
+        border:none;
+        border-radius:12px;
+        background:linear-gradient(to bottom, #222, #111);
+        color:white;
+        cursor:pointer;
+        font-size:1rem;
+        border:1px solid #444;
+        transition:0.25s;
+    }
+
+    .submit:hover{
+        transform:translateY(-2px);
+        box-shadow:0 0 15px rgba(255,255,255,0.08);
+    }
+
+    .status{
+        margin-top:12px;
+        font-size:0.95rem;
+        min-height:20px;
+    }
+
+    .correct-text{
+        color:#7cff7c;
+    }
+
+    .wrong-text{
+        color:#ff6f6f;
+    }
+
+    #finalBox{
+        display:none;
+        margin-top:50px;
+        padding:30px;
+        border-radius:20px;
+        background:#070707;
+        border:1px solid #333;
+        text-align:center;
+        animation:fadeIn 1s ease;
+    }
+
+    #finalText{
+        margin-top:20px;
+        font-size:1.3rem;
+        color:#fff;
+        letter-spacing:2px;
+    }
+
+    @keyframes fadeIn{
+        from{
+            opacity:0;
+            transform:translateY(25px);
+        }
+        to{
+            opacity:1;
+            transform:translateY(0);
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>2nd side of the Triangle</h1>
+
+    <div id="quizContainer"></div>
+
+    <div id="finalBox">
+        <h2>ALL QUESTIONS SOLVED</h2>
+        <div id="finalText">
+            THE FINAL TEXT GOES HERE
+        </div>
+    </div>
+
+</div>
+
+<script>
+/*
+=========================================
+QUIZ DATA
+=========================================
+*/
+const quizzes = [
+    {
+        name: "What site from Cicada 3301 is an IP, redirected after a site with Prime numbers.",
+        answer: "79.143.189.52"
+    },
+    {
+        name: "What is the EndScreen of smlwiki.com",
+        answer: "Bouncing Marwin"
+    },
+    {
+        name: "What do you see when you enter the secret video on the BloodBear game",
+        answer: "Dancing BloodBear"
+    },
+    {
+        name: "What is the hidden message in the gman jumpscare from the addon 'Anomalies' on the Steam Workshop Author Namericito",
+        answer: "RunConsoleCommand(\"777\")"
+    }
+];
+
+/*
+=========================================
+FINAL TEXT
+=========================================
+*/
+const finalText = "After all this puzzle, the true one is caged in muzzle, either the danger will be in physical, and maybe in the digital, but the one who is in dark web, will be the one who can answer to all, USE WISELY. http://darkgptqjmtsddq2kthnq7emo6jpxbzxyhn77tutrlinqvovuk7jywid.onion/";
+
+/*
+=========================================
+VOICE SETTINGS
+=========================================
+*/
+const voice = "Mike (for Telephone)";
+const pitch = 113;
+const speed = 170;
+
+const container = document.getElementById("quizContainer");
+let solvedCount = 0;
+
+/*
+=========================================
+CREATE QUIZZES
+=========================================
+*/
+quizzes.forEach((quiz, index) => {
+
+    const div = document.createElement("div");
+    div.className = "quiz";
+
+    div.innerHTML = `
+        <div class="question-row">
+            <div class="question">${quiz.name}</div>
+
+            <button class="speak" title="Speak">
+                🔊
+            </button>
+        </div>
+
+        <div class="answer-row">
+            <input type="text" placeholder="Enter answer..." />
+            <button class="submit">Submit</button>
+        </div>
+
+        <div class="status"></div>
+    `;
+
+    const speakBtn = div.querySelector(".speak");
+    const input = div.querySelector("input");
+    const submitBtn = div.querySelector(".submit");
+    const status = div.querySelector(".status");
+
+    /*
+    =========================================
+    SPEAK BUTTON
+    =========================================
+    */
+    speakBtn.onclick = () => {
+
+        const text = encodeURIComponent(quiz.name);
+
+        const api =
+            `https://www.tetyys.com/SAPI4/SAPI4?text=${text}` +
+            `&voice=${encodeURIComponent(voice)}` +
+            `&pitch=${pitch}` +
+            `&speed=${speed}`;
+
+        const audio = new Audio(api);
+        audio.play();
+    };
+
+    /*
+    =========================================
+    SUBMIT ANSWER
+    =========================================
+    */
+    submitBtn.onclick = () => {
+
+        const userAnswer = input.value.trim();
+
+        if (
+            userAnswer.toLowerCase() ===
+            quiz.answer.toLowerCase()
+        ) {
+
+            status.innerHTML =
+                `<span class="correct-text">Correct. Locked.</span>`;
+
+            div.classList.add("correct");
+
+            input.disabled = true;
+            submitBtn.disabled = true;
+            speakBtn.disabled = true;
+
+            solvedCount++;
+
+            checkAllSolved();
+
+        } else {
+
+            status.innerHTML =
+                `<span class="wrong-text">Incorrect answer.</span>`;
+        }
+    };
+
+    container.appendChild(div);
+});
+
+/*
+=========================================
+CHECK ALL SOLVED
+=========================================
+*/
+function checkAllSolved(){
+
+    if(solvedCount === quizzes.length){
+
+        document.getElementById("finalBox").style.display = "block";
+        document.getElementById("finalText").textContent = finalText;
+
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+}
+</script>
+
+</body>
+</html>
